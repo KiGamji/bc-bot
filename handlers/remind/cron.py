@@ -12,7 +12,7 @@ class RemindersCron:
 
     async def create_database(self) -> None:
         """Create database if not exists."""
-        async with aiosqlite.connect('./static/reminders.db') as db:
+        async with aiosqlite.connect('./data/reminders.db') as db:
             await db.execute('''
                 CREATE TABLE IF NOT EXISTS reminders (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -27,7 +27,7 @@ class RemindersCron:
 
     async def restore_reminders(self) -> None:
         """Reschedule reminders from the database on bot startup."""
-        async with aiosqlite.connect('./static/reminders.db') as db:
+        async with aiosqlite.connect('./data/reminders.db') as db:
             async with db.execute("SELECT id, chat_id, user_id, username, text, remind_time FROM reminders") as cursor:
                 async for row in cursor:
                     id, chat_id, user_id, username, reminder_text, remind_time_str = row

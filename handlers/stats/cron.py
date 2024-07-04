@@ -13,7 +13,7 @@ class StatsCron:
 
     async def _create_database(self) -> None:
         """Create database if not exists."""
-        async with aiosqlite.connect('./static/msg_stats.db') as db:
+        async with aiosqlite.connect('./data/msg_stats.db') as db:
             await db.execute('''
                 CREATE TABLE IF NOT EXISTS messages (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -29,7 +29,7 @@ class StatsCron:
         month_ago = datetime.now() - timedelta(days=30)
         date_str = month_ago.strftime('%Y-%m-%d %H:%M:%S')
 
-        async with aiosqlite.connect('./static/msg_stats.db') as db:
+        async with aiosqlite.connect('./data/msg_stats.db') as db:
             await db.execute('''
                 DELETE FROM messages
                 WHERE timestamp < ?
