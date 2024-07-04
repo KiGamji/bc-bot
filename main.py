@@ -14,12 +14,12 @@ from handlers import *
 
 load_dotenv()
 
-TELEGRAM_TOKEN = getenv("TELEGRAM_TOKEN")
+CHAT_ID = getenv("CHAT_ID")
 EXCHANGERATES_TOKEN = getenv("EXCHANGERATES_TOKEN")
+TELEGRAM_TOKEN = getenv("TELEGRAM_TOKEN")
 
-bcID = -1001474397357
-bcMessageFilter = F.chat.id == bcID
-bcCallbackFilter = F.message.chat.id == bcID
+message_filter = F.chat.id == int(CHAT_ID)
+callback_filter = F.message.chat.id == int(CHAT_ID)
 
 bot = Bot(
     TELEGRAM_TOKEN,
@@ -31,25 +31,25 @@ scheduler = AsyncIOScheduler()
 
 
 async def main():
-    dp.message.register(start, CommandStart(), bcMessageFilter)
-    dp.message.register(start, Command("help"), bcMessageFilter)
+    dp.message.register(start, CommandStart(), message_filter)
+    dp.message.register(start, Command("help"), message_filter)
 
     dp.message.register(alo, Command("alo"))
     dp.message.register(cum, Command("cum"))
-    dp.message.register(exchange, Command("exchange"), bcMessageFilter)
-    dp.message.register(layout_command, Command("layout"), bcMessageFilter)
-    dp.message.register(remind_command, Command("remind"), bcMessageFilter)
-    dp.message.register(stats_command, Command("stats"), bcMessageFilter)
+    dp.message.register(exchange, Command("exchange"), message_filter)
+    dp.message.register(layout_command, Command("layout"), message_filter)
+    dp.message.register(remind_command, Command("remind"), message_filter)
+    dp.message.register(stats_command, Command("stats"), message_filter)
 
-    @dp.callback_query(F.data.in_({'day', 'week', 'month'}) & bcCallbackFilter)
+    @dp.callback_query(F.data.in_({'day', 'week', 'month'}) & callback_filter)
     async def stats_callback_(call: CallbackQuery) -> None:
         await stats_callback(call)
 
-    @dp.callback_query(bcCallbackFilter & F.data == 'delete')
+    @dp.callback_query(callback_filter & F.data == 'delete')
     async def delete_currency_message_(call: CallbackQuery) -> None:
         await delete_currency_message(call)
 
-    @dp.message(bcMessageFilter)
+    @dp.message(message_filter)
     async def non_command(message: Message) -> None:
         stats = Stats()
         await stats.log(message)
