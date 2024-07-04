@@ -18,9 +18,8 @@ class RemindersCron:
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     chat_id INTEGER NOT NULL,
                     user_id INTEGER NOT NULL,
-                    username TEXT NOT NULL,
                     text TEXT NOT NULL,
-                    remind_time DATETIME NOT NULL
+                    time DATETIME NOT NULL
                 )
             ''')
             await db.commit()
@@ -29,14 +28,14 @@ class RemindersCron:
         """Reschedule reminders from the database on bot startup."""
         async with aiosqlite.connect('./data/reminders.db') as db:
             async with db.execute(
-                "SELECT id, chat_id, user_id, username, text, remind_time FROM reminders"
+                "SELECT id, chat_id, user_id, text, time FROM reminders"
             ) as cursor:
                 async for row in cursor:
-                    id, chat_id, user_id, username, reminder_text, remind_time_str = row
+                    id, chat_id, user_id, remind_text, remind_time_str = row
                     remind_time = datetime.fromisoformat(remind_time_str)
 
                     if remind_time <= datetime.now():
-                        await send_reminder(chat_id, user_id, username, reminder_text)
+                        await send_reminder(chat_id, user_id, remind_text)
                         await db.execute("DELETE FROM reminders WHERE id = ?", (id,))
                         await db.commit()
                     else:
@@ -47,8 +46,7 @@ class RemindersCron:
                             args=[
                                 chat_id,
                                 user_id,
-                                username,
-                                reminder_text,
+                                remind_text,
                             ],
                         )
 
