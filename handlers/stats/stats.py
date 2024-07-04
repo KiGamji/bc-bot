@@ -10,9 +10,6 @@ from aiogram.types import (
     Message,
 )
 
-# TO DO: don't hardcode bcID
-from main import bcID
-
 
 class Stats:
     def __init__(self):
@@ -37,51 +34,55 @@ class Stats:
 
         return InlineKeyboardMarkup(inline_keyboard=[buttons])
 
-    async def _get_stats(self, days: int, users_limit: int) -> tuple:
+    async def _get_stats(
+            self, chat_id: int, days: int, users_limit: int) -> tuple:
         async with aiosqlite.connect('./static/msg_stats.db') as db:
-            cursor = await db.cursor()
             now = datetime.utcnow()
             time = (now - timedelta(days=days)).strftime('%Y-%m-%d %H:%M:%S')
 
-            await cursor.execute(
-                'SELECT user_id, COUNT(*) AS msg_count FROM messages WHERE timestamp > ? GROUP BY user_id ORDER BY msg_count DESC LIMIT ?',
-                (time, users_limit)
+            cursor = await db.execute('''
+                SELECT user_id, COUNT(*) AS msg_count FROM messages
+                WHERE chat_id = ? AND timestamp > ?
+                GROUP BY user_id ORDER BY msg_count DESC LIMIT ?
+                ''',
+                (chat_id, time, users_limit)
             )
             stats = zip(*await cursor.fetchall())
 
-            await cursor.execute(
-                'SELECT COUNT(*) FROM messages WHERE timestamp > ?',
-                (time,)
+            cursor = await db.execute(
+                'SELECT COUNT(*) FROM messages WHERE chat_id = ? AND timestamp > ?',
+                (chat_id, time)
             )
             total = (await cursor.fetchone())[0]
 
             return stats, total
 
     async def _log_message(self, message: Message) -> None:
-        async with aiosqlite.connect('./static/msg_stats.db') as db:
-            user_id = message.from_user.id
-            timestamp = message.date.strftime('%Y-%m-%d %H:%M:%S')
+        chat_id = message.chat.id
+        user_id = message.from_user.id
+        timestamp = message.date.strftime('%Y-%m-%d %H:%M:%S')
 
+        async with aiosqlite.connect('./static/msg_stats.db') as db:
             await db.execute(
-                'INSERT INTO messages (user_id, timestamp) VALUES (?, ?)',
-                (user_id, timestamp),
+                'INSERT INTO messages (chat_id, user_id, timestamp) VALUES (?, ?, ?)',
+                (chat_id, user_id, timestamp),
             )
             await db.commit()
 
-    async def _process_list(self, days: int, message: Message) -> tuple:
+    async def _process_list(
+            self, chat_id: int, days: int, message: Message) -> tuple:
         # 10 users by default
-        stats = await self._get_stats(days, 10)
+        stats = await self._get_stats(chat_id, days, 10)
         ids, counts = stats[0]
         total = stats[1]
 
         names = []
         for user_id in ids:
             try:
-                user = await message.bot.get_chat_member(bcID, user_id)
+                user = await message.bot.get_chat_member(chat_id, user_id)
                 names.append(user.user.full_name)
             # Doesn't work rarely for some reason, append user_id instead
             except TelegramBadRequest:
-                print("ERROR: Bad Request: user not found")
                 names.append(user_id)
 
         stats_list = []
@@ -104,7 +105,10 @@ class Stats:
 
         return stats_list, total
 
-    async def _process_message(self, message: Message, call: CallbackQuery) -> tuple:
+    async def _process_message(
+            self, message: Message, call: CallbackQuery) -> tuple:
+        chat_id = message.chat.id if message else call.message.chat.id
+
         # 1 day by default
         days = 1
         period = "день"
@@ -121,9 +125,9 @@ class Stats:
                 period = "месяц"
                 reply_markup = self._get_reply_markup(day=True, week=True)
 
-            stats = await self._process_list(days, call.message)
+            stats = await self._process_list(chat_id, days, call.message)
         else:
-            stats = await self._process_list(days, message)
+            stats = await self._process_list(chat_id, days, message)
 
         message_list = "\n".join(stats[0])
         total = "".join(str(stats[1]))
