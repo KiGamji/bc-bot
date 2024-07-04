@@ -61,7 +61,7 @@ async def remind_command(message: Message, command: CommandObject) -> None:
         # Limit maximum reminder time to 1 year
         limit = datetime.now() + timedelta(days=365)
         if remind_time < limit:
-            async with aiosqlite.connect('./static/reminders.db') as db:
+            async with aiosqlite.connect('./data/reminders.db') as db:
                 await db.execute("INSERT INTO reminders (chat_id, user_id, username, text, remind_time) VALUES (?, ?, ?, ?, ?)",
                                  (message.chat.id, message.from_user.id, message.from_user.username, reminder_text, remind_time))
                 await db.commit()
@@ -100,6 +100,6 @@ async def send_reminder(chat_id: int, user_id: int, username: str, reminder_text
         + f"{html.blockquote(html.quote(reminder_text))}",
     )
 
-    async with aiosqlite.connect('./static/reminders.db') as db:
+    async with aiosqlite.connect('./data/reminders.db') as db:
         await db.execute("DELETE FROM reminders WHERE user_id = ? AND remind_time <= ?", (user_id, datetime.now(),))
         await db.commit()

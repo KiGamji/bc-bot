@@ -36,7 +36,7 @@ class Stats:
 
     async def _get_stats(
             self, chat_id: int, days: int, users_limit: int) -> tuple:
-        async with aiosqlite.connect('./static/msg_stats.db') as db:
+        async with aiosqlite.connect('./data/msg_stats.db') as db:
             now = datetime.utcnow()
             time = (now - timedelta(days=days)).strftime('%Y-%m-%d %H:%M:%S')
 
@@ -62,7 +62,7 @@ class Stats:
         user_id = message.from_user.id
         timestamp = message.date.strftime('%Y-%m-%d %H:%M:%S')
 
-        async with aiosqlite.connect('./static/msg_stats.db') as db:
+        async with aiosqlite.connect('./data/msg_stats.db') as db:
             await db.execute(
                 'INSERT INTO messages (chat_id, user_id, timestamp) VALUES (?, ?, ?)',
                 (chat_id, user_id, timestamp),
