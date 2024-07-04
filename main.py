@@ -1,4 +1,5 @@
 import asyncio
+from os import getenv
 from sys import platform
 
 from aiogram import Bot, Dispatcher, F
@@ -7,9 +8,14 @@ from aiogram.enums import ParseMode
 from aiogram.filters import Command, CommandStart
 from aiogram.types import Message
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from dotenv import load_dotenv
 
 from handlers import *
-from static.tokens import *
+
+load_dotenv()
+
+TELEGRAM_TOKEN = getenv("TELEGRAM_TOKEN")
+EXCHANGERATES_TOKEN = getenv("EXCHANGERATES_TOKEN")
 
 bcID = -1001474397357
 bcMessageFilter = F.chat.id == bcID
@@ -63,6 +69,7 @@ async def main():
     scheduler.start()
 
     await dp.start_polling(bot)
+
 
 if __name__ == '__main__':
     if platform == 'win32':
