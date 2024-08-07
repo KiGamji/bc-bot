@@ -73,8 +73,18 @@ class Stats:
             self, chat_id: int, days: int, message: Message) -> tuple:
         # 10 users by default
         stats = await self._get_stats(chat_id, days, 10)
-        ids, counts = stats[0]
+        stats_list = []
         total = stats[1]
+
+        try:
+            ids, counts = stats[0]
+        except ValueError:
+            stats_list.append(
+                html.italic("Ой, здесь ничего нет!")
+                + "\n"
+                + "Нет данных за выбранный период."
+            )
+            return stats_list, total
 
         names = []
         for user_id in ids:
@@ -85,7 +95,6 @@ class Stats:
             except TelegramBadRequest:
                 names.append(user_id)
 
-        stats_list = []
         for position, (name, user_id, msg_count) in enumerate(zip(names, ids, counts), 1):
             if isinstance(name, str):
                 stats_list.append(
