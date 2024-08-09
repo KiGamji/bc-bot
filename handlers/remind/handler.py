@@ -8,6 +8,7 @@ from aiogram.methods import SetMessageReaction
 from aiogram.types import Message, ReactionTypeEmoji
 
 from main import bot
+from .parse_time import parse_time
 from .scheduler_manager import main_sched
 
 
@@ -21,9 +22,8 @@ async def remind_command(message: Message, command: CommandObject) -> None:
             return
 
         delay, reminder_text = args
-        delay_pattern = re.compile(r"(\d+)([MwdhmsМндчмс])")
-        match = delay_pattern.match(delay)
-        if not match:
+        delta = parse_time(delay)
+        if delta.total_seconds() == 0:
             await message.reply(
                 "<b>🚫 Неверный формат времени.\n"
                 "Используйте следующие обозначения:</b>\n"
@@ -35,26 +35,6 @@ async def remind_command(message: Message, command: CommandObject) -> None:
                 "– <b>s</b> или <b>с</b> — для секунд"
             )
             return
-
-        amount, unit = match.groups()
-        amount = int(amount)
-        delta = {
-            # English
-            "M": timedelta(days=amount * 30),
-            "w": timedelta(weeks=amount),
-            "d": timedelta(days=amount),
-            "h": timedelta(hours=amount),
-            "m": timedelta(minutes=amount),
-            "s": timedelta(seconds=amount),
-
-            # Cyrillic
-            "М": timedelta(days=amount * 30),
-            "н": timedelta(weeks=amount),
-            "д": timedelta(days=amount),
-            "ч": timedelta(hours=amount),
-            "м": timedelta(minutes=amount),
-            "с": timedelta(seconds=amount),
-        }[unit]
 
         remind_time = datetime.now() + delta
 
