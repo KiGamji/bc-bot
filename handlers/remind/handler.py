@@ -26,13 +26,13 @@ async def remind_command(message: Message, command: CommandObject) -> None:
         if not match:
             await message.reply(
                 "<b>🚫 Неверный формат времени.\n"
-                + "Используйте следующие обозначения:</b>\n"
-                + "– <b>M</b> — для месяцев\n"
-                + "– <b>w</b> или <b>н</b> — для недель\n"
-                + "– <b>d</b> или <b>д</b> — для дней\n"
-                + "– <b>h</b> или <b>ч</b> — для часов\n"
-                + "– <b>m</b> или <b>м</b> — для минут\n"
-                + "– <b>s</b> или <b>с</b> — для секунд"
+                "Используйте следующие обозначения:</b>\n"
+                "– <b>M</b> — для месяцев\n"
+                "– <b>w</b> или <b>н</b> — для недель\n"
+                "– <b>d</b> или <b>д</b> — для дней\n"
+                "– <b>h</b> или <b>ч</b> — для часов\n"
+                "– <b>m</b> или <b>м</b> — для минут\n"
+                "– <b>s</b> или <b>с</b> — для секунд"
             )
             return
 
@@ -62,8 +62,17 @@ async def remind_command(message: Message, command: CommandObject) -> None:
         limit = datetime.now() + timedelta(days=365)
         if remind_time < limit:
             async with aiosqlite.connect('./data/reminders.db') as db:
-                await db.execute("INSERT INTO reminders (chat_id, user_id, username, text, remind_time) VALUES (?, ?, ?, ?, ?)",
-                                 (message.chat.id, message.from_user.id, message.from_user.username, reminder_text, remind_time))
+                await db.execute(
+                    "INSERT INTO reminders (chat_id, user_id, username, text, remind_time)"
+                    "VALUES (?, ?, ?, ?, ?)",
+                    (
+                        message.chat.id,
+                        message.from_user.id,
+                        message.from_user.username,
+                        reminder_text,
+                        remind_time,
+                    )
+                )
                 await db.commit()
 
             main_sched.add_job(
@@ -101,5 +110,8 @@ async def send_reminder(chat_id: int, user_id: int, username: str, reminder_text
     )
 
     async with aiosqlite.connect('./data/reminders.db') as db:
-        await db.execute("DELETE FROM reminders WHERE user_id = ? AND remind_time <= ?", (user_id, datetime.now(),))
+        await db.execute(
+            "DELETE FROM reminders WHERE user_id = ? AND remind_time <= ?",
+            (user_id, datetime.now(),)
+        )
         await db.commit()
