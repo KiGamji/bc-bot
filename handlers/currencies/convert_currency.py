@@ -8,14 +8,21 @@ from .main_currencies import *
 
 
 def preprocess_message(message: str) -> str:
+    # Remove mentions
     message = re.sub(r"@(\S+)", "", message)
+    # Remove URLs
     message = re.sub(
         r"\b(?:https?:\/\/|www\.)\S+\b|\b\S+\.com\S*\b", "", message,
     )
+    # Remove spaces within numbers
     message = re.sub(
         r"(?<!\d)(\d{1,3}(?: \d{3})*(?:\.\d+)?)(?=(?:\s\d{3})*(?:\.\d+)?|\D|$)",
         lambda match: match.group(1).replace(" ", ""),
         message,
+    )
+    # Remove lines that contain Java log references with $
+    message = re.sub(
+        r"^\s*at\b.*\b\w+\$\w+.*$", "", message, flags=re.MULTILINE,
     )
 
     return message
@@ -89,7 +96,7 @@ async def convert_currency(message: Message) -> None:
                 [InlineKeyboardButton(text="Удалить", callback_data='delete')],
             ]
         )
-        message = await message.answer(
+        await message.answer(
             response.strip().rstrip('—————').strip(),
             reply_markup=reply_markup,
         )
