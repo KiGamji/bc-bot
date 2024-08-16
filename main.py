@@ -1,4 +1,5 @@
 import asyncio
+from sys import platform
 
 from aiogram import Bot, Dispatcher, F
 from aiogram.client.bot import DefaultBotProperties
@@ -64,4 +65,6 @@ async def main():
     await dp.start_polling(bot)
 
 if __name__ == '__main__':
+    if platform == 'win32':
+        asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
     asyncio.run(main())
