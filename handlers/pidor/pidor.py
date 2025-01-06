@@ -2,12 +2,10 @@ import asyncio
 import datetime
 import random
 
-from aiogram import html
-from aiogram.exceptions import TelegramBadRequest, TelegramForbiddenError
 from aiogram.types import Message
 
 from handlers.pidor import db
-from handlers.pidor.rus_util import format_timedelta_ru
+from handlers.pidor.utils import format_timedelta_ru, get_mention
 
 BEGINNING_STRINGS = [
     "Эй, зачем разбудили...",
@@ -66,15 +64,6 @@ async def pidor(message: Message) -> None:
         locks[message.chat.id] = True
 
     try:
-        async def get_mention(target_id: int) -> str:
-            try:
-                member = await message.bot.get_chat_member(message.chat.id, target_id)
-                if member.user.username is not None:
-                    return f"@{html.quote(member.user.username)}"
-                else:
-                    return f'<a href="tg://user?id={target_id}">{html.quote(member.user.first_name)}</a>'
-            except (TelegramForbiddenError, TelegramBadRequest):
-                return f'<a href="tg://user?id={target_id}">{target_id}</a>'
 
         check_result = await db.get_todays_pidor(message.chat.id)
         if check_result:
@@ -88,10 +77,10 @@ async def pidor(message: Message) -> None:
                 time_left_delta = datetime.timedelta(seconds=time_left_seconds)
                 formatted_time_left = format_timedelta_ru(time_left_delta)
 
-                mention = await get_mention(pidor_id)
+                mention = await get_mention(message, pidor_id, False)
 
                 await message.reply(
-                    f"<b>Сегодняшний пидор</b> - {mention.replace('@', '')}\n"
+                    f"<b>Сегодняшний пидор</b> - {mention}\n"
                     f"Нового пидора можно будет выбрать через {formatted_time_left}"
                 )
                 return
@@ -101,7 +90,7 @@ async def pidor(message: Message) -> None:
             await message.reply("<b>Никто не зарегистрирован в игре. Зарегистрироваться -</b> /pidoreg")
             return
         pidor_id = random.choice(pidors)
-        mention = await get_mention(pidor_id)
+        mention = await get_mention(message, pidor_id, True)
 
         await message.answer(random.choice(BEGINNING_STRINGS))
         await asyncio.sleep(3)
