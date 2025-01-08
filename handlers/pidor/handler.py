@@ -2,6 +2,7 @@ from asyncio import sleep
 from datetime import datetime, timedelta
 from random import choice
 
+from aiogram import html
 from aiogram.filters import CommandObject
 from aiogram.types import Message, ReactionTypeEmoji
 
@@ -63,7 +64,7 @@ async def get_pidor(message: Message) -> None:
 
             # Cooldown has not expired yet
             if cooldown > 0:
-                delta = timedelta(seconds=time_left_seconds)
+                delta = timedelta(seconds=cooldown)
                 time_left = format_timedelta_ru(delta)
 
                 mention = await get_mention(message, pidor_id, False)
@@ -124,7 +125,7 @@ async def get_stats(message: Message) -> None:
                 times_word = "раза"
                 break
 
-        user = await get_username(user_id)
+        user = await get_mention(message, user_id, False)
 
         text += (
             "\n"

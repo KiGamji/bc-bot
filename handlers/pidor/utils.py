@@ -31,14 +31,16 @@ async def get_mention(message: Message, target_id: int, notify: bool) -> str:
         first_name = user.first_name
 
         if username:
-            return f"@{html.quote(username)}"
-        else:
-            return f'<a href="tg://user?id={target_id}">{html.quote(user.first_name)}</a>'
+            if notify:
+                return f"@{html.quote(username)}"
+            else:
+                return html.quote(username)
 
-        if notify:
-            return mention
         else:
-            return html.quote(username if username else first_name)
+            if notify:
+                return f'<a href="tg://user?id={target_id}">{html.quote(first_name)}</a>'
+            else:
+                return html.quote(first_name)
 
     except (TelegramForbiddenError, TelegramBadRequest):
         return (

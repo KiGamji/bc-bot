@@ -1,2 +1,2 @@
 from .db import PidorDatabase
-from .pidor import pidor_command
+from .handler import pidor_command
