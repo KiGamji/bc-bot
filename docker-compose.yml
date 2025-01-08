@@ -1,0 +1,12 @@
+services:
+  bot:
+    container_name: bc-bot
+    build:
+      context: .
+    command:
+      - python3
+      - main.py
+    restart: unless-stopped
+    volumes:
+      - ./data:/app/data
+      - ./.env:/app/.env
