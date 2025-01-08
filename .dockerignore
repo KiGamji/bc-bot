@@ -1,0 +1,20 @@
+# Git
+.git
+
+# Python bytecode cache files
+__pycache__
+
+# Environment
+.env.example
+.venv
+venv
+
+# IDE
+.idea
+.vs
+.vscode
+
+# Other project files
+.dockerignore
+Dockerfile*
+LICENSE
