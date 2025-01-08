@@ -1,4 +1,2 @@
-from .db import create_pidors_database
-from .pidor import pidor
-from .pidoreg import pidoreg
-from .pidorstats import pidorstats
+from .db import PidorDatabase
+from .pidor import pidor_command
