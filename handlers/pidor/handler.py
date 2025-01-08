@@ -83,7 +83,7 @@ async def get_pidor(message: Message) -> None:
             )
             return
 
-        pidor_id = random.choice(pidors)
+        pidor_id = choice(pidors)
         mention = await get_mention(message, pidor_id, True)
 
         await message.answer(choice(BEGINNING_STRINGS))
