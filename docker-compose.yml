@@ -3,7 +3,7 @@ services:
     container_name: bc-bot
     build:
       context: .
-    command: 
+    command:
       - python3
       - main.py
     restart: unless-stopped
