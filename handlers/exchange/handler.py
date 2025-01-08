@@ -23,7 +23,7 @@ async def exchange(message: Message, command: CommandObject) -> None:
                 await msg.edit_text(
                     html.bold(
                         f'{currency_emojis.get(first_currency.upper(), "")} {first_currency.upper()} '
-                        f'/ {currency_emojis.get(second_currency.upper(), "")} {second_currency.upper()}: {rate}'
+                        f'к {currency_emojis.get(second_currency.upper(), "")} {second_currency.upper()}: {rate}'
                     )
                 )
             else:
@@ -50,12 +50,12 @@ async def exchange(message: Message, command: CommandObject) -> None:
                 rate = parse(rate)
                 result += html.bold(
                     f'{currency_emojis.get(first_currency.upper(), "")} {first_currency.upper()} '
-                    f'/ {currency_emojis.get(second_currency.upper(), "")} {second_currency.upper()}: {rate}\n'
+                    f'к {currency_emojis.get(second_currency.upper(), "")} {second_currency.upper()}: {rate}\n'
                 )
             else:
                 result += html.bold(
                     f'{currency_emojis.get(first_currency.upper(), "")} {first_currency.upper()} '
-                    f'/ {currency_emojis.get(second_currency.upper(), "")} {second_currency.upper()}: ⚠️\n'
+                    f'к {currency_emojis.get(second_currency.upper(), "")} {second_currency.upper()}: ⚠️\n'
                 )
             await msg.edit_text(
                 html.bold(
