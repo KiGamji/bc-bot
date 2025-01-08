@@ -1,4 +1,4 @@
-aiogram[fast]~=3.4.1
+aiogram[fast]~=3.17.0
 aiosqlite~=0.20.0
 APScheduler~=3.10.4
 beautifulsoup4~=4.12.2
