@@ -1,12 +1,12 @@
 import re
-import aiohttp
+
 from aiogram import html
 from aiogram.types import Message
 from aiogram.filters import CommandObject
 
-from .currency_emojis import *
-from .default_pairs import *
-from .get_pair import *
+from handlers.currencies.currency_emojis import currency_emojis
+from .default_pairs import default_pairs
+from .get_pair import get_pair
 
 
 async def exchange(message: Message, command: CommandObject) -> None:
@@ -23,7 +23,7 @@ async def exchange(message: Message, command: CommandObject) -> None:
                 await msg.edit_text(
                     html.bold(
                         f'{currency_emojis.get(first_currency.upper(), "")} {first_currency.upper()} '
-                        f'/ {currency_emojis.get(second_currency.upper(), "")} {second_currency.upper()}: {rate}'
+                        f'к {currency_emojis.get(second_currency.upper(), "")} {second_currency.upper()}: {rate}'
                     )
                 )
             else:
@@ -50,12 +50,12 @@ async def exchange(message: Message, command: CommandObject) -> None:
                 rate = parse(rate)
                 result += html.bold(
                     f'{currency_emojis.get(first_currency.upper(), "")} {first_currency.upper()} '
-                    f'/ {currency_emojis.get(second_currency.upper(), "")} {second_currency.upper()}: {rate}\n'
+                    f'к {currency_emojis.get(second_currency.upper(), "")} {second_currency.upper()}: {rate}\n'
                 )
             else:
                 result += html.bold(
                     f'{currency_emojis.get(first_currency.upper(), "")} {first_currency.upper()} '
-                    f'/ {currency_emojis.get(second_currency.upper(), "")} {second_currency.upper()}: ⚠️\n'
+                    f'к {currency_emojis.get(second_currency.upper(), "")} {second_currency.upper()}: ⚠️\n'
                 )
             await msg.edit_text(
                 html.bold(
