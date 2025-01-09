@@ -31,6 +31,7 @@ scheduler = AsyncIOScheduler()
 
 async def main():
     dp.message.register(start, CommandStart(), message_filter)
+    dp.message.register(start, Command("about"), message_filter)
     dp.message.register(start, Command("help"), message_filter)
 
     dp.message.register(alo, Command("alo"))
