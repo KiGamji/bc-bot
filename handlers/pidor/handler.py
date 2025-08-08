@@ -8,7 +8,8 @@ from aiogram.types import Message, ReactionTypeEmoji
 
 from .db import PidorDatabase
 from .strings import BEGINNING_STRINGS, PROCESS_STRINGS, FINAL_STRINGS
-from .utils import format_timedelta_ru, get_mention
+from .utils import format_timedelta_ru
+from handlers.utils import get_mention
 
 db = PidorDatabase()
 
